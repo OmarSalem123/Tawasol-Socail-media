@@ -1,10 +1,13 @@
-import { api } from "../../utils";
+import { api, setAuthToken } from "../../utils";
 import { showAlertMessage } from "./alerts";
 
 const REGISTER_SUCCESS = "users/REGISTER_SUCCESS";
 const REGISTER_FAIL = "users/REGISTER_FAIL";
 const USER_LOADED = "users/USER_LOADED";
 const USER_ERROR = "users/USER_ERROR";
+const LOGIN_SUCCESS = "users/LOGIN_SUCCESS";
+const LOGIN_FAIL = "users/LOGIN_FAIL";
+const LOGOUT = "users/LOGOUT";
 
 export const loadUser = () => async (dispatch) => {
     try{
@@ -43,6 +46,32 @@ export function register(formData) {
         }
     }
 }
+export function login(email, password) {
+    return async function loginThunk(dispatch){
+        try{
+            const res = await api.post("/users/login", {email, password});
+            dispatch({
+                type: LOGIN_SUCCESS,
+                payload: res.data
+            });
+            dispatch(loadUser());
+        }catch(error){
+            const errors = error.response.data.errors;
+            if(errors){
+                errors.forEach(error => {
+                    dispatch(showAlertMessage(error.msg, "error"));
+                });
+            }
+            dispatch({
+                type: LOGIN_FAIL
+            });
+        }
+    }
+}
+
+export const logout = () => (dispatch) => {
+    dispatch({type: LOGOUT})
+}
 
 const initialState = {
     token: localStorage.getItem("token"),
@@ -62,7 +91,8 @@ export default function reducer(state = initialState, action){
                 user: payload
             }
         case REGISTER_SUCCESS:
-            localStorage.setItem("token", payload.token);
+        case LOGIN_SUCCESS:
+            setAuthToken(payload.token);
             return {
                 ...state,
                 token: payload.token,
@@ -70,7 +100,8 @@ export default function reducer(state = initialState, action){
                 loading: false
             }
         case REGISTER_FAIL:
-            localStorage.setItem("token", null);
+        case LOGIN_FAIL:
+            setAuthToken();
             return {
                 ...state,
                 token: null,
@@ -78,7 +109,8 @@ export default function reducer(state = initialState, action){
                 loading: false
             }
         case USER_ERROR:
-            localStorage.setItem("token", null);
+        case LOGOUT:
+            setAuthToken();
             return{
                 ...state,
                 token: null,
