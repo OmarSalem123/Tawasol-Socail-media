@@ -1,7 +1,24 @@
 import {Fragment} from"react";
 import { Link } from "react-router-dom";
+import { connect } from "react-redux";
+import { logout } from "../redux/modules/users";
 
-const Navbar = () => {
+const Navbar = ({users: {isAuth}, logout}) => {
+    const authLinks = (
+        <ul>
+            <li>
+                <Link onClick={logout} to="/">Logout</Link>
+            </li>
+        </ul>
+    )
+    const links = (
+        <ul>
+            <li>
+                <Link to="/login">Login</Link>
+            </li>
+        </ul>
+    )
+
     return (
         <nav className="navbar bg-navbar">
             <h1>
@@ -10,13 +27,12 @@ const Navbar = () => {
                 </Link>
             </h1>
             <Fragment>
-                <ul>
-                    <li>
-                        <Link to="/login">Login</Link>
-                    </li>
-                </ul>
+                {isAuth ? authLinks : links}
             </Fragment>
         </nav>
     );
 }
-export default Navbar;
+const mapStateToProps = (state) => ({
+    users: state.users
+})
+export default connect(mapStateToProps, {logout})(Navbar);

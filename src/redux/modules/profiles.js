@@ -2,9 +2,12 @@ import { showAlertMessage } from "./alerts";
 import { api, serverUrl } from "../../utils";
 
 export const GET_PROFILE = "profile/GET_PROFILE";
+export const GET_PROFILES = "profile/GET_PROFILES";
 export const UPDATE_PROFILE = "profile/UPDATE_PROFILE";
 export const PROFILE_ERROR = "profile/PROFILE_ERROR";
 export const UPLOAD_PROFILE_IMAGE = "profile/UPLOAD_PROFILE_IMAGE";
+export const CLEAR_PROFILE = "profile/CLEAR_PROFILE";
+export const DELETE_ACCOUNT = "profile/DELETE_ACCOUNT";
 
 
 export const getCurrentProfile = () => async (dispatch) => {
@@ -60,6 +63,39 @@ export const uploadProfileImage = data => async (dispatch) => {
         });
     }catch(err){
         console.log(err);
+    }
+}
+export const getProfiles = () => async (dispatch) => {
+    dispatch({type: CLEAR_PROFILE})
+
+    try{
+        const res = await api.get("/profiles")
+        console.log("profiles: "+res.data)
+        dispatch({
+            type: GET_PROFILES,
+            payload: res.data
+        })
+    }catch(err){
+        dispatch({
+            type: PROFILE_ERROR,
+            payload: {msg: err.response.statusText, status: err.response.status}
+        })
+    }
+}
+export const getProfilesById = (userId) => async (dispatch) => {
+    dispatch({type: CLEAR_PROFILE})
+
+    try{
+        const res = await api.get(`/profiles/user/${userId}`)
+        dispatch({
+            type: GET_PROFILE,
+            payload: res.data
+        })
+    }catch(err){
+        dispatch({
+            type: PROFILE_ERROR,
+            payload: {msg: err.response.statusText, status: err.response.status}
+        })
     }
 }
 
@@ -141,9 +177,25 @@ export const deleteEdu = (id) => async(dispatch) => {
         })
     }
 }
-
+export const deleteAccount = () => async(dispatch) => {
+    if(window.confirm('Are you sure? This will permanently delete all your data')){
+        try{
+            await api.delete("/profiles")
+            dispatch({
+                type: DELETE_ACCOUNT
+            });
+            dispatch(showAlertMessage('Your account has been permanently deleted'))
+        }catch(err){
+            dispatch({
+                type: PROFILE_ERROR,
+                payload: {msg: err.response.statusText, status: err.response.status}
+            })
+        }
+    }
+}
 const initialState = {
     profile: null,
+    profiles: [],
     loading: true,
     error: {},
     image: null
@@ -159,7 +211,14 @@ export default function reducer(state = initialState, action){
                 profile: payload,
                 loading: false
             };
-            
+            case GET_PROFILES:
+            case DELETE_ACCOUNT:
+                return {
+                    ...state,
+                    profiles: payload,
+                    loading: false
+                };
+    
             case PROFILE_ERROR:
                 return{
                     ...state,
@@ -167,6 +226,12 @@ export default function reducer(state = initialState, action){
                     loading: false,
                     profile: null
                 };
+            case CLEAR_PROFILE:
+                return{
+                    ...state,
+                    profile: null,
+                    repos: []
+                }
             case UPLOAD_PROFILE_IMAGE:
                 return{
                     ...state,

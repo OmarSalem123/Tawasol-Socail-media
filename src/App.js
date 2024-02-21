@@ -17,6 +17,9 @@ import AddEdu from './components/ProfileForms/AddEdu';
 import AddExp from './components/ProfileForms/AddExp';
 import { setAuthToken } from './utils';
 import { loadUser } from './redux/modules/users';
+import Developers from './components/Developers';
+import Profile from './components/Profile';
+import Settings from './components/Settings';
 
 const options = {
   position: positions.TOP_RIGHT,
@@ -48,6 +51,11 @@ function App() {
             <Route exact path='/create-profile' element={<Private component={ProfileForm}/>} />
             <Route exact path='/add-edu' element={<Private component={AddEdu}/>} />
             <Route exact path='/add-exp' element={<Private component={AddExp}/>} />
+            <Route exact path='/developers' element={<Private component={Developers}/>} />
+            <Route exact path='/profile/:id' element={<Private component={Profile}/>} />
+            <Route exact path='/settings' element={<Private component={Settings}/>} />
+            <Route exact path='/edit-profile' element={<Private component={ProfileForm}/>} />
+
           </Routes>
         </Fragment>
       </AlertProvider>
