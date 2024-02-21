@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { connect } from "react-redux";
-import {Link, Redirect} from "react-router-dom";
+import {Link, Navigate} from "react-router-dom";
 import PropTypes from "prop-types";
 import { register } from "../../redux/modules/users";
 import { showAlertMessage } from "../../redux/modules/alerts";
@@ -23,6 +23,9 @@ const Register = ({isAuth, showAlertMessage, register}) => {
         } else{
             register({name, email, password});
         }
+    }
+    if(isAuth){
+        return <Navigate to="/home"/>;
     }
     return(
         <>

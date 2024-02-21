@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const serverUrl = "http://localhost:5000";
+export const serverUrl = "http://localhost:5000";
 
 export const api = axios.create({
     baseURL: `${serverUrl}/api`,
@@ -18,4 +18,11 @@ export const setAuthToken = token => {
         localStorage.removeItem("token");
 
     }
+}
+export const getProfileImage = userId => {
+    console.log("User ID:", userId);
+    return (`${serverUrl}/images/${userId}`)};
+
+export const formateDate = date => {
+    return new Intl.DateTimeFormat('en', {year: 'numeric', month: 'long'}).format(new Date(date));
 }
